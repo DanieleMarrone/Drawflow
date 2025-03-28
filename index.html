@@ -7,7 +7,7 @@
   <title>Drawflow</title>
 </head>
 <body>
-  <script src="drawflow.min.js"></script>
+  <script src="dist/drawflow.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/js/all.min.js" integrity="sha256-KzZiKy0DWYsnwMF+X1DvQngQ2/FxF7MF3Ff72XcpuPs=" crossorigin="anonymous"></script>
   <link rel="stylesheet" type="text/css" href="src/drawflow.css" />
   <link rel="stylesheet" type="text/css" href="docs/beautiful.css" />
@@ -159,8 +159,13 @@
 
     editor.on('nodeSelected', function(id) {
       console.log("Node selected " + id);
+      highlightConnectedNodes(id);      
     })
 
+    editor.on('nodeUnselected', function() {
+      resetNodeTransparency();
+    }); 
+        
     editor.on('moduleCreated', function(name) {
       console.log("Module Created " + name);
     })
@@ -443,6 +448,60 @@
         unlock.style.display = 'none';
       }
 
+    }
+
+    function highlightConnectedNodes(selectedNodeId) {
+      const allNodes = document.querySelectorAll('.drawflow-node');
+      const allConnections = document.querySelectorAll('.connection');
+
+      // Reset all nodes and connections
+      allNodes.forEach(node => node.style.opacity = '0.2');
+      allConnections.forEach(connection => connection.style.opacity = '0.2');
+
+      // Highlight the selected node
+      const selectedNode = document.querySelector(`.drawflow-node[id="node-${selectedNodeId}"]`);
+      if (selectedNode) {
+        selectedNode.style.opacity = '1';
+      }
+
+      // Highlight connected nodes and connections
+      const inputConnections = editor.getNodeFromId(selectedNodeId).inputs;
+      for (const input in inputConnections) {
+        inputConnections[input].connections.forEach(conn => {
+          const connectedNode = document.querySelector(`.drawflow-node[id="node-${conn.node}"]`);
+          if (connectedNode) {
+            connectedNode.style.opacity = '1';
+          }
+          const connectionLines = document.querySelectorAll(`.connection.node_in_node-${selectedNodeId}.node_out_node-${conn.node}`);
+          connectionLines.forEach(connectionLine => {
+            connectionLine.style.opacity = '1';
+          });
+        });
+      }
+
+      const outputConnections = editor.getNodeFromId(selectedNodeId).outputs;
+      for (const output in outputConnections) {
+        outputConnections[output].connections.forEach(conn => {
+          const connectedNode = document.querySelector(`.drawflow-node[id="node-${conn.node}"]`);
+          if (connectedNode) {
+            connectedNode.style.opacity = '1';
+          }
+          const connectionLines = document.querySelectorAll(`.connection.node_in_node-${conn.node}.node_out_node-${selectedNodeId}`);
+          connectionLines.forEach(connectionLine => {
+            connectionLine.style.opacity = '1';
+          });
+        });
+      }      
+
+    }
+
+    function resetNodeTransparency() {
+      const allNodes = document.querySelectorAll('.drawflow-node');
+      const allConnections = document.querySelectorAll('.connection');
+
+      // Reset all nodes and connections to full opacity
+      allNodes.forEach(node => node.style.opacity = '1');
+      allConnections.forEach(connection => connection.style.opacity = '1');
     }
 
   </script>
