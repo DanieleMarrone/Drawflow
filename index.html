@@ -159,13 +159,13 @@
 
     editor.on('nodeSelected', function(id) {
       console.log("Node selected " + id);
-      highlightConnectedNodes(id);      
+      highlightConnectedNodes(id);           
     })
 
     editor.on('nodeUnselected', function() {
       resetNodeTransparency();
     }); 
-        
+
     editor.on('moduleCreated', function(name) {
       console.log("Module Created " + name);
     })
@@ -504,6 +504,32 @@
       allConnections.forEach(connection => connection.style.opacity = '1');
     }
 
+    function centerDiagramOnNode(nodeId) {
+      const nodeElement = document.querySelector(`.drawflow-node[id="node-${nodeId}"]`);
+      if (nodeElement) {
+        const rect = nodeElement.getBoundingClientRect();
+        const canvasRect = editor.precanvas.getBoundingClientRect();
+
+        // Calcola la posizione assoluta del nodo rispetto al canvas
+        const nodeCenterX = rect.left + rect.width / 2;
+        const nodeCenterY = rect.top + rect.height / 2;
+
+        const canvasCenterX = canvasRect.left + canvasRect.width / 2;
+        const canvasCenterY = canvasRect.top + canvasRect.height / 2;
+
+        // Calcola le coordinate assolute del canvas necessarie per centrare il nodo
+        const offsetX = canvasCenterX - nodeCenterX;
+        const offsetY = canvasCenterY - nodeCenterY;
+
+        // Imposta le coordinate assolute del canvas
+        editor.canvas_x = offsetX;
+        editor.canvas_y = offsetY;
+
+        // Applica la trasformazione al canvas
+        editor.precanvas.style.transform = `translate(${editor.canvas_x}px, ${editor.canvas_y}px) scale(${editor.zoom})`;
+      }
+    }
+        
   </script>
 </body>
 </html>
