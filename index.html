@@ -5,17 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <title>Drawflow</title>
-  <style>
-    .node-service .title-box {
-      background-color: lightgreen !important;
-    }
-    .node-database .title-box {
-      background-color: lightblue !important;
-    }
-    .node-queue .title-box {
-      background-color: orange !important;
-    }
-  </style>
 </head>
 <body>
   <script src="dist/drawflow.min.js"></script>
@@ -81,6 +70,10 @@
     editor.import(dataToImport);
 
     // Events!
+    editor.on('nodeCreated', function(id) {
+      editNodeName(id);
+    })
+    
     editor.on('nodeSelected', function(id) {
       highlightConnectedNodes(id);           
     })
@@ -88,6 +81,7 @@
     editor.on('nodeUnselected', function() {
       resetNodeTransparency();
     }); 
+
 
     function allowDrop(ev) {
       ev.preventDefault();
@@ -116,7 +110,9 @@
         case 'service':
         var service = `
         <div>
-          <div class="title-box"><i class="fas fa-cog"></i><span class="node-title"> Service</span></div>
+          <div class="title-box">
+            <i class="fas fa-cog"></i><span class="node-title"> Service</span>
+          </div>
         </div>
         `;
           editor.addNode('service', 1,  1, pos_x, pos_y, 'node-service', {}, service);
@@ -126,7 +122,9 @@
         case 'database':
         var database = `
         <div>
-          <div class="title-box"><i class="fas fa-database"></i><span class="node-title"> Database</span></div>
+          <div class="title-box">
+            <i class="fas fa-database"></i><span class="node-title"> Database</span>
+          </div>
         </div>
         `;
           editor.addNode('database', 1,  0, pos_x, pos_y, 'node-database', {}, database);
@@ -136,7 +134,9 @@
         case 'queue':
         var queue = `
         <div>
-          <div class="title-box"><i class="fas fa-envelope"></i><span class="node-title"> Queue</span></div>
+          <div class="title-box">
+            <i class="fas fa-envelope"></i><span class="node-title"> Queue</span>
+          </div>
         </div>
         `;
           editor.addNode('queue', 1,  1, pos_x, pos_y, 'node-queue', {}, queue);
@@ -156,7 +156,6 @@
     }
 
     function changeMode(option) {
-    //console.log(lock.id);
       if(option == 'lock') {
         lock.style.display = 'none';
         unlock.style.display = 'block';
@@ -165,6 +164,7 @@
         unlock.style.display = 'none';
       }
     }
+
 
     function highlightConnectedNodes(selectedNodeId) {
       const allNodes = document.querySelectorAll('.drawflow-node');
@@ -211,6 +211,7 @@
 
     }
 
+
     function resetNodeTransparency() {
       const allNodes = document.querySelectorAll('.drawflow-node');
       const allConnections = document.querySelectorAll('.connection');
@@ -219,6 +220,7 @@
       allNodes.forEach(node => node.style.opacity = '1');
       allConnections.forEach(connection => connection.style.opacity = '1');
     }
+
 
     function centerDiagramOnNode(nodeId) {
       const nodeElement = document.querySelector(`.drawflow-node[id="node-${nodeId}"]`);
@@ -246,6 +248,68 @@
       }
     }
     
+    function editNodeName(nodeId) {
+      const nodeElement = document.querySelector(`.drawflow-node[id="node-${nodeId}"]`);
+      if (nodeElement) {
+        const titleBox = nodeElement.querySelector('.node-title');
+
+        // Crea un input di testo per modificare il nome
+        const titleRect = titleBox.getBoundingClientRect();
+
+        // Crea un input di testo per modificare il nome
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.value = titleBox.textContent.trim();
+        input.style.position = 'absolute';
+        input.style.zIndex = '1000';
+        input.style.left = `${titleRect.left}px`;
+        input.style.top = `${titleRect.top}px`;
+        input.style.width = `${titleRect.width}px`;
+        input.style.height = `${titleRect.height}px`;
+
+        document.body.appendChild(input);
+
+        // Seleziona automaticamente il testo all'interno dell'input
+        input.select();
+
+        // Quando l'utente conferma (premendo Invio o cliccando fuori)
+        input.addEventListener('blur', () => {
+          const newName = input.value.trim();
+          if (newName) {
+            // Aggiorna il nome del nodo
+            replaceTitle(nodeId, newName);
+          }
+          document.body.removeChild(input);
+        });
+
+        input.addEventListener('keydown', (event) => {
+          if (event.key === 'Enter') {
+            input.blur();
+          }
+        });
+
+        input.focus();
+      }
+    }    
+
+    function replaceTitle(nodeId, newTitle) {
+      const nodeElement = document.querySelector(`.drawflow-node[id="node-${nodeId}"]`);
+      const nodeData = editor.getNodeFromId(nodeId);
+
+      if (nodeElement) {
+        const titleBox = nodeElement.querySelector('.node-title');
+        titleBox.textContent = newTitle;
+
+        const module = editor.getModuleFromNodeId(nodeId);
+        const html = editor.drawflow.drawflow[module].data[nodeId].html;
+        const startTitle = html.indexOf('<span class="node-title">')+ '<span class="node-title">'.length;
+        const endTitle = html.indexOf('</span>', start);
+        const newHtml = html.substring(0, startTitle) + newTitle + html.substring(endTitle);
+        editor.drawflow.drawflow[module].data[nodeId].html = newHtml;
+      }
+      
+    }
+
   </script>
 </body>
 </html>

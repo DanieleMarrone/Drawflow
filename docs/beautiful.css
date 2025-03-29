@@ -316,13 +316,30 @@ cursor: pointer;
   stroke: var(--border-color);
   stroke-width: 2;
   fill: white;
-  
+}
+
+.drawflow-node.node-service .title-box {
+   background-color: lightgreen;
+ }
+
+ .drawflow-node.node-database .title-box {
+  background-color: lightblue;
+}
+
+.drawflow-node.node-queue .title-box {
+  background-color: orange;
 }
 
 .drawflow .connection .point.selected, .drawflow .connection .point:hover {
   fill: #4ea9ff;
 }
 
+.node-title {
+  display: inline-block;
+  margin-left: 8px;;
+  width: calc(100% - 30px); /* Adjust for padding or icon space */
+  text-align: left;
+}
 
 /* Modal */
 .modal {
