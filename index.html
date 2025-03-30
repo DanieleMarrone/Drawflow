@@ -17,7 +17,6 @@
 
   <header>
     <h2>Drawflow</h2>
-    <div class="github-link"><a href="https://github.com/jerosoler/Drawflow" target="_blank"><i class="fab fa-github fa-3x"></i></a></div>
   </header>
   <div class="wrapper">
     <div class="col">
@@ -40,6 +39,8 @@
       </div>
       <div id="drawflow" ondrop="drop(event)" ondragover="allowDrop(event)">
 
+        <input class="input-search" type="text" placeholder="Search..." onkeydown="resetSearch()" />
+        <div class="btn-search" onclick="search()">Search</div>
         <div class="btn-export" onclick="Swal.fire({ title: 'Export',
         html: '<pre><code>'+JSON.stringify(editor.export(), null,4)+'</code></pre>'
         })">Export</div>
@@ -222,6 +223,35 @@
     }
 
 
+    let searchResults = [];
+    function search() {
+      if (searchResults.length == 0) {
+        const searchInput = document.querySelector('.input-search').value.toLowerCase();
+        if (searchInput === '') {
+          return;
+        }
+        const allNodes = document.querySelectorAll('.drawflow-node');
+
+        allNodes.forEach(node => {
+          const nodeTitle = node.querySelector('.node-title').textContent.toLowerCase();
+          if (nodeTitle.includes(searchInput)) {
+            const nodeId = node.id.replace('node-', '');
+            searchResults.push(nodeId);
+          }
+        });
+      }
+
+      if (searchResults.length > 0) {
+        const nodeId = searchResults.pop();
+        centerDiagramOnNode(nodeId);
+        document.querySelector(`.drawflow-node[id="node-${nodeId}"]`).click();
+      }
+    }
+
+    function resetSearch() {
+      searchResults = [];
+    }
+
     function centerDiagramOnNode(nodeId) {
       const nodeElement = document.querySelector(`.drawflow-node[id="node-${nodeId}"]`);
       if (nodeElement) {
@@ -303,7 +333,7 @@
         const module = editor.getModuleFromNodeId(nodeId);
         const html = editor.drawflow.drawflow[module].data[nodeId].html;
         const startTitle = html.indexOf('<span class="node-title">')+ '<span class="node-title">'.length;
-        const endTitle = html.indexOf('</span>', start);
+        const endTitle = html.indexOf('</span>', startTitle);
         const newHtml = html.substring(0, startTitle) + newTitle + html.substring(endTitle);
         editor.drawflow.drawflow[module].data[nodeId].html = newHtml;
       }

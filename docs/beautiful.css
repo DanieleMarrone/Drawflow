@@ -90,6 +90,32 @@ cursor: pointer;
   font-weight: bold;
 }
 
+.input-search {
+  float: right;
+  position: absolute;
+  top: 12px;
+  right: 230px;  
+  padding: 5px 10px;
+  border: 1px solid var(--border-color);
+  width: 200px;
+  z-index: 5;
+}
+
+.btn-search {
+  float: right;
+  position: absolute;
+  top: 10px;
+  right: 150px;
+  color: white;
+  font-weight: bold;
+  border: 1px solid darkgreen;
+  background: green;
+  padding: 5px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  z-index: 5;
+}
+
 .btn-export {
   float: right;
   position: absolute;
