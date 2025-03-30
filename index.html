@@ -25,10 +25,10 @@
       </div>
       <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="database">
         <i class="fas fa-database"></i><span> Database</span>
-      </div>      
+      </div>
       <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="queue">
         <i class="fas fa-envelope"></i><span> Queue</span>
-      </div>         
+      </div>
     </div>
     <div class="col-right">
       <div class="menu">
@@ -41,9 +41,7 @@
 
         <input class="input-search" type="text" placeholder="Search..." onkeydown="resetSearch()" />
         <div class="btn-search" onclick="search()">Search</div>
-        <div class="btn-export" onclick="Swal.fire({ title: 'Export',
-        html: '<pre><code>'+JSON.stringify(editor.export(), null,4)+'</code></pre>'
-        })">Export</div>
+        <div class="btn-export" onclick="exportData()">Export</div>
         <div class="btn-clear" onclick="editor.clearModuleSelected()">Clear</div>
         <div class="btn-lock">
           <i id="lock" class="fas fa-lock" onclick="editor.editor_mode='fixed'; changeMode('lock');"></i>
@@ -59,6 +57,30 @@
   </div>
 
   <script>
+    function exportData() {
+      const data = editor.export(); // Esporta i dati dall'editor
+      const jsonData = JSON.stringify(data, null, 4); // Converte i dati in formato JSON leggibile
+
+      // Crea un blob con i dati JSON
+      const blob = new Blob([jsonData], { type: 'application/json' });
+
+      // Crea un link temporaneo per il download
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = 'data.json'; // Nome del file da scaricare
+
+      // Simula un clic sul link per avviare il download
+      link.click();
+
+      // Rilascia l'oggetto URL per liberare memoria
+      URL.revokeObjectURL(link.href);     
+
+      // const data = editor.export();
+      // Swal.fire({ title: 'Export',
+      //   html: '<pre><code>'+JSON.stringify(data, null,4)+'</code></pre>'
+      //   })
+    }
+
 
     var id = document.getElementById("drawflow");
     const editor = new Drawflow(id);
@@ -66,23 +88,28 @@
     editor.reroute_fix_curvature = true;
     editor.force_first_input = false;
 
-    const dataToImport =  {"drawflow":{"Home":{"data":{}},"Other":{"data":{}}}}
-    editor.start();
-    editor.import(dataToImport);
+    var dataToImport =  {"drawflow":{"Home":{"data":{}},"Other":{"data":{}}}}
+    fetch("data.json")
+    .then(response => response.json())
+    .then(data => dataToImport = data)
+    .finally(() => {
+      // Importa i dati JSON nell'editor
+      editor.start();
+      editor.import(dataToImport);
 
-    // Events!
-    editor.on('nodeCreated', function(id) {
-      editNodeName(id);
-    })
-    
-    editor.on('nodeSelected', function(id) {
-      highlightConnectedNodes(id);           
-    })
+      // Events!
+      editor.on('nodeCreated', function(id) {
+        editNodeName(id);
+      })
 
-    editor.on('nodeUnselected', function() {
-      resetNodeTransparency();
-    }); 
+      editor.on('nodeSelected', function(id) {
+        highlightConnectedNodes(id);
+      })
 
+      editor.on('nodeUnselected', function() {
+        resetNodeTransparency();
+      });      
+    });
 
     function allowDrop(ev) {
       ev.preventDefault();
@@ -117,9 +144,9 @@
         </div>
         `;
           editor.addNode('service', 1,  1, pos_x, pos_y, 'node-service', {}, service);
-          break;    
+          break;
 
-        // database  
+        // database
         case 'database':
         var database = `
         <div>
@@ -129,9 +156,9 @@
         </div>
         `;
           editor.addNode('database', 1,  0, pos_x, pos_y, 'node-database', {}, database);
-          break;  
-          
-        // queue  
+          break;
+
+        // queue
         case 'queue':
         var queue = `
         <div>
@@ -141,9 +168,9 @@
         </div>
         `;
           editor.addNode('queue', 1,  1, pos_x, pos_y, 'node-queue', {}, queue);
-          break;  
+          break;
 
-        // default  
+        // default
         default:
       }
     }
@@ -208,7 +235,7 @@
             connectionLine.style.opacity = '1';
           });
         });
-      }      
+      }
 
     }
 
@@ -277,7 +304,7 @@
         editor.precanvas.style.transform = `translate(${editor.canvas_x}px, ${editor.canvas_y}px) scale(${editor.zoom})`;
       }
     }
-    
+
     function editNodeName(nodeId) {
       const nodeElement = document.querySelector(`.drawflow-node[id="node-${nodeId}"]`);
       if (nodeElement) {
@@ -320,7 +347,7 @@
 
         input.focus();
       }
-    }    
+    }
 
     function replaceTitle(nodeId, newTitle) {
       const nodeElement = document.querySelector(`.drawflow-node[id="node-${nodeId}"]`);
@@ -337,7 +364,6 @@
         const newHtml = html.substring(0, startTitle) + newTitle + html.substring(endTitle);
         editor.drawflow.drawflow[module].data[nodeId].html = newHtml;
       }
-      
     }
 
   </script>

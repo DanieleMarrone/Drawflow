@@ -1,0 +1,47 @@
+{
+    "drawflow": {
+        "Home": {
+            "data": {
+                "8": {
+                    "id": 8,
+                    "name": "service",
+                    "data": {},
+                    "class": "node-service",
+                    "html": "\n        <div>\n          <div class=\"title-box\">\n            <i class=\"fas fa-cog\"></i><span class=\"node-title\">Service</span>\n          </div>\n        </div>\n        ",
+                    "typenode": false,
+                    "inputs": {
+                        "input_1": {
+                            "connections": []
+                        }
+                    },
+                    "outputs": {
+                        "output_1": {
+                            "connections": []
+                        }
+                    },
+                    "pos_x": 361,
+                    "pos_y": 174
+                },
+                "9": {
+                    "id": 9,
+                    "name": "database",
+                    "data": {},
+                    "class": "node-database",
+                    "html": "\n        <div>\n          <div class=\"title-box\">\n            <i class=\"fas fa-database\"></i><span class=\"node-title\">Database</span>\n          </div>\n        </div>\n        ",
+                    "typenode": false,
+                    "inputs": {
+                        "input_1": {
+                            "connections": []
+                        }
+                    },
+                    "outputs": {},
+                    "pos_x": 562,
+                    "pos_y": 394
+                }
+            }
+        },
+        "Other": {
+            "data": {}
+        }
+    }
+}
