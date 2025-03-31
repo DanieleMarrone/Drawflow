@@ -173,6 +173,30 @@ export default class Drawflow {
     }
   }
 
+  selectNode(id) {
+    var node = this.container.querySelector('#node-'+id);
+    this.first_click = node;
+    this.ele_selected = node;
+
+    if(this.node_selected != null) {
+      this.node_selected.classList.remove("selected");
+      if(this.node_selected != this.ele_selected) {
+        this.dispatch('nodeUnselected', true);
+      }
+    }
+    if(this.connection_selected != null) {
+      this.connection_selected.classList.remove("selected");
+      this.removeReouteConnectionSelected();
+      this.connection_selected = null;
+    }
+    if(this.node_selected != this.ele_selected) {
+      this.dispatch('nodeSelected', this.ele_selected.id.slice(5));
+    }
+    this.node_selected = this.ele_selected;
+    this.node_selected.classList.add("selected");
+    this.drag = false;
+  }
+
   click(e) {
     this.dispatch('click', e);
     if(this.editor_mode === 'fixed') {

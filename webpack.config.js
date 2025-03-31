@@ -6,5 +6,6 @@ module.exports = {
     libraryExport: 'default',
     filename: 'drawflow.min.js',
     globalObject: `(typeof self !== 'undefined' ? self : this)`
-  }
+  },
+  devtool: 'source-map'
 };

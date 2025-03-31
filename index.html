@@ -302,6 +302,9 @@
 
         // Applica la trasformazione al canvas
         editor.precanvas.style.transform = `translate(${editor.canvas_x}px, ${editor.canvas_y}px) scale(${editor.zoom})`;
+
+        // Seleziona il nodo
+        editor.selectNode(nodeId);
       }
     }
 
