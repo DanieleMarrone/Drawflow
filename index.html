@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title>Drawflow</title>
+  <title>suitEstensa</title>
 </head>
 <body>
   <script src="dist/drawflow.min.js"></script>
@@ -16,10 +16,13 @@
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@9"></script>
 
   <header>
-    <h2>Drawflow</h2>
+    <h2>suitEstensa</h2>
   </header>
   <div class="wrapper">
-    <div class="col">
+    <div class="col-left">
+      <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="wcf">
+        <i class="fas fa-cogs"></i><span> WCF</span>
+      </div>
       <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="service">
         <i class="fas fa-cog"></i><span> Service</span>
       </div>
@@ -30,11 +33,11 @@
         <i class="fas fa-envelope"></i><span> Queue</span>
       </div>
     </div>
-    <div class="col-right">
+    <div class="col-center">
       <div class="menu">
         <ul>
-          <li onclick="editor.changeModule('Home'); changeModule(event);" class="selected">Home</li>
-          <li onclick="editor.changeModule('Other'); changeModule(event);">Other Module</li>
+          <li onclick="editor.changeModule('All'); changeModule(event);" class="selected">All</li>
+          <li onclick="editor.changeModule('vNext'); changeModule(event);">vNext</li>
         </ul>
       </div>
       <div id="drawflow" ondrop="drop(event)" ondragover="allowDrop(event)">
@@ -54,25 +57,29 @@
         </div>
       </div>
     </div>
+    <div class="col-right">
+      <div id="node-summary">
+      </div>
+    </div>
   </div>
 
   <script>
     function exportData() {
-      const data = editor.export(); // Esporta i dati dall'editor
-      const jsonData = JSON.stringify(data, null, 4); // Converte i dati in formato JSON leggibile
+      const data = editor.export(); // Export data from the editor
+      const jsonData = JSON.stringify(data, null, 4); // Convert data to readable JSON format
 
-      // Crea un blob con i dati JSON
+      // Create a blob with the JSON data
       const blob = new Blob([jsonData], { type: 'application/json' });
 
-      // Crea un link temporaneo per il download
+      // Create a temporary link for download
       const link = document.createElement('a');
       link.href = URL.createObjectURL(blob);
-      link.download = 'data.json'; // Nome del file da scaricare
+      link.download = 'data.json'; // Name of the file to download
 
-      // Simula un clic sul link per avviare il download
+      // Simulate a click on the link to start the download
       link.click();
 
-      // Rilascia l'oggetto URL per liberare memoria
+      // Release the URL object to free memory
       URL.revokeObjectURL(link.href);     
 
       // const data = editor.export();
@@ -88,22 +95,27 @@
     editor.reroute_fix_curvature = true;
     editor.force_first_input = false;
 
-    var dataToImport =  {"drawflow":{"Home":{"data":{}},"Other":{"data":{}}}}
+    var dataToImport =  {"drawflow":{"All":{"data":{}},"vNext":{"data":{}}}}
     fetch("data.json")
     .then(response => response.json())
     .then(data => dataToImport = data)
     .finally(() => {
-      // Importa i dati JSON nell'editor
+      // Import JSON data into the editor
       editor.start();
       editor.import(dataToImport);
 
       // Events!
+      editor.on('nodeImported', function(id) {
+        modifyNodeName(id);
+      })
+
       editor.on('nodeCreated', function(id) {
         editNodeName(id);
       })
 
       editor.on('nodeSelected', function(id) {
         highlightConnectedNodes(id);
+        updateNodeSummary(id);
       })
 
       editor.on('nodeUnselected', function() {
@@ -134,6 +146,18 @@
 
 
       switch (name) {
+        // WCF
+        case 'wcf':
+        var wcf = `
+        <div>
+          <div class="title-box">
+            <i class="fas fa-cogs"></i><span class="node-title"> WCF</span>
+          </div>
+        </div>
+        `;
+          editor.addNode('wcf', 1,  1, pos_x, pos_y, 'node-wcf', {}, wcf);
+          break;
+
         // service
         case 'service':
         var service = `
@@ -155,8 +179,8 @@
           </div>
         </div>
         `;
-          editor.addNode('database', 1,  0, pos_x, pos_y, 'node-database', {}, database);
-          break;
+        editor.addNode('database', 1,  0, pos_x, pos_y, 'node-database', {}, database);
+        break;
 
         // queue
         case 'queue':
@@ -192,7 +216,6 @@
         unlock.style.display = 'none';
       }
     }
-
 
     function highlightConnectedNodes(selectedNodeId) {
       const allNodes = document.querySelectorAll('.drawflow-node');
@@ -240,6 +263,42 @@
     }
 
 
+    function updateNodeSummary(nodeId) {
+      const nodeData = editor.getNodeFromId(nodeId);
+      const nodeElement = document.querySelector(`.drawflow-node[id="node-${nodeId}"]`);
+
+      // Get the titles of connected input nodes
+      const inputConnections = Object.values(nodeData.inputs).flatMap(input =>
+        input.connections.map(conn => {
+          return document.querySelector(`.drawflow-node[id="node-${conn.node}"] .node-title`).textContent;
+        })
+      );
+
+      // Get the titles of connected output nodes
+      const outputConnections = Object.values(nodeData.outputs).flatMap(output =>
+        output.connections.map(conn => {
+          return document.querySelector(`.drawflow-node[id="node-${conn.node}"] .node-title`).textContent;
+        })
+      );
+
+      const inputList = inputConnections.length > 0 ? `<ul>${inputConnections.map(input => `<li>${input}</li>`).join('')}</ul>` : '-';
+      const outputList = outputConnections.length > 0 ? `<ul>${outputConnections.map(output => `<li>${output}</li>`).join('')}</ul>` : '-';
+
+
+      // Create the summary content
+      const summaryHtml = `
+        <h3>Summary</h3>
+        <p><strong>Name:</strong> ${nodeElement.querySelector('.node-title').textContent}</p>
+        <p><strong>Type:</strong> ${nodeData.class}</p>
+        <p><strong>In:</strong> ${inputList}</p>
+        <p><strong>Out:</strong> ${outputList}</p>
+      `;
+
+      // Update the content of the right column
+      const nodeSummary = document.getElementById('node-summary');
+      nodeSummary.innerHTML = summaryHtml;
+    }  
+
     function resetNodeTransparency() {
       const allNodes = document.querySelectorAll('.drawflow-node');
       const allConnections = document.querySelectorAll('.connection');
@@ -271,7 +330,7 @@
       if (searchResults.length > 0) {
         const nodeId = searchResults.pop();
         centerDiagramOnNode(nodeId);
-        document.querySelector(`.drawflow-node[id="node-${nodeId}"]`).click();
+        editor.selectNode(nodeId);      
       }
     }
 
@@ -285,38 +344,43 @@
         const rect = nodeElement.getBoundingClientRect();
         const canvasRect = editor.precanvas.getBoundingClientRect();
 
-        // Calcola la posizione assoluta del nodo rispetto al canvas
+        // Calculate the absolute position of the node relative to the canvas
         const nodeCenterX = rect.left + rect.width / 2;
         const nodeCenterY = rect.top + rect.height / 2;
 
         const canvasCenterX = canvasRect.left + canvasRect.width / 2;
         const canvasCenterY = canvasRect.top + canvasRect.height / 2;
 
-        // Calcola le coordinate assolute del canvas necessarie per centrare il nodo
+        // Calculate the absolute coordinates of the canvas needed to center the node
         const offsetX = canvasCenterX - nodeCenterX;
         const offsetY = canvasCenterY - nodeCenterY;
 
-        // Imposta le coordinate assolute del canvas
+        // Set the absolute coordinates of the canvas
         editor.canvas_x = offsetX;
         editor.canvas_y = offsetY;
 
-        // Applica la trasformazione al canvas
+        // Apply the transformation to the canvas
         editor.precanvas.style.transform = `translate(${editor.canvas_x}px, ${editor.canvas_y}px) scale(${editor.zoom})`;
-
-        // Seleziona il nodo
-        editor.selectNode(nodeId);
       }
     }
+
+    function modifyNodeName(nodeId) {
+      const nodeElement = document.querySelector(`.drawflow-node[id="node-${nodeId}"]`);
+      if (nodeElement) {
+        const titleBox = nodeElement.querySelector('.node-title');
+        titleBox.textContent = titleBox.textContent + '(' + nodeId + ')';        
+      }    
+    }    
 
     function editNodeName(nodeId) {
       const nodeElement = document.querySelector(`.drawflow-node[id="node-${nodeId}"]`);
       if (nodeElement) {
         const titleBox = nodeElement.querySelector('.node-title');
 
-        // Crea un input di testo per modificare il nome
+        // Create a text input to edit the name
         const titleRect = titleBox.getBoundingClientRect();
 
-        // Crea un input di testo per modificare il nome
+        // Create a text input to edit the name
         const input = document.createElement('input');
         input.type = 'text';
         input.value = titleBox.textContent.trim();
@@ -329,14 +393,14 @@
 
         document.body.appendChild(input);
 
-        // Seleziona automaticamente il testo all'interno dell'input
+        // Automatically select the text inside the input
         input.select();
 
-        // Quando l'utente conferma (premendo Invio o cliccando fuori)
+        // When the user confirms (pressing Enter or clicking outside)
         input.addEventListener('blur', () => {
           const newName = input.value.trim();
           if (newName) {
-            // Aggiorna il nome del nodo
+            // Update the node name
             replaceTitle(nodeId, newName);
           }
           document.body.removeChild(input);
