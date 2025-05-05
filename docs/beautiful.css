@@ -50,9 +50,16 @@ header a {
   display: flex;
 }
 
-.col {
+.col-left {
   overflow: auto;
-  width: 300px;
+  width: 200px;
+  height: 100%;
+  border-right: 1px solid var(--border-color);
+}
+
+.col-right {
+  overflow: auto;
+  width: 250px;
   height: 100%;
   border-right: 1px solid var(--border-color);
 }
@@ -69,7 +76,7 @@ header a {
   height: 40px;
   display: block;
   background: white;
-  width: 100%;
+  width: calc(100vw - 451px);
 }
 .menu ul {
   padding: 0px;
@@ -189,7 +196,7 @@ cursor: pointer;
 
 #drawflow {
   position: relative;
-  width: calc(100vw - 301px);
+  width: calc(100vw - 451px);
   height: calc(100% - 50px);
   top: 40px;
   background: var(--background-color);

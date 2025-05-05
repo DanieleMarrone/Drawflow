@@ -65,21 +65,21 @@
 
   <script>
     function exportData() {
-      const data = editor.export(); // Export data from the editor
-      const jsonData = JSON.stringify(data, null, 4); // Convert data to readable JSON format
+      const data = editor.export(); // Esporta i dati dall'editor
+      const jsonData = JSON.stringify(data, null, 4); // Converte i dati in formato JSON leggibile
 
-      // Create a blob with the JSON data
+      // Crea un blob con i dati JSON
       const blob = new Blob([jsonData], { type: 'application/json' });
 
-      // Create a temporary link for download
+      // Crea un link temporaneo per il download
       const link = document.createElement('a');
       link.href = URL.createObjectURL(blob);
-      link.download = 'data.json'; // Name of the file to download
+      link.download = 'data.json'; // Nome del file da scaricare
 
-      // Simulate a click on the link to start the download
+      // Simula un clic sul link per avviare il download
       link.click();
 
-      // Release the URL object to free memory
+      // Rilascia l'oggetto URL per liberare memoria
       URL.revokeObjectURL(link.href);     
 
       // const data = editor.export();
@@ -100,7 +100,7 @@
     .then(response => response.json())
     .then(data => dataToImport = data)
     .finally(() => {
-      // Import JSON data into the editor
+      // Importa i dati JSON nell'editor
       editor.start();
       editor.import(dataToImport);
 
@@ -267,14 +267,14 @@
       const nodeData = editor.getNodeFromId(nodeId);
       const nodeElement = document.querySelector(`.drawflow-node[id="node-${nodeId}"]`);
 
-      // Get the titles of connected input nodes
+      // Ottieni i titoli dei nodi connessi in input
       const inputConnections = Object.values(nodeData.inputs).flatMap(input =>
         input.connections.map(conn => {
           return document.querySelector(`.drawflow-node[id="node-${conn.node}"] .node-title`).textContent;
         })
       );
 
-      // Get the titles of connected output nodes
+      // Ottieni i titoli dei nodi connessi in output
       const outputConnections = Object.values(nodeData.outputs).flatMap(output =>
         output.connections.map(conn => {
           return document.querySelector(`.drawflow-node[id="node-${conn.node}"] .node-title`).textContent;
@@ -285,7 +285,7 @@
       const outputList = outputConnections.length > 0 ? `<ul>${outputConnections.map(output => `<li>${output}</li>`).join('')}</ul>` : '-';
 
 
-      // Create the summary content
+      // Crea il contenuto del riepilogo
       const summaryHtml = `
         <h3>Summary</h3>
         <p><strong>Name:</strong> ${nodeElement.querySelector('.node-title').textContent}</p>
@@ -294,7 +294,7 @@
         <p><strong>Out:</strong> ${outputList}</p>
       `;
 
-      // Update the content of the right column
+      // Aggiorna il contenuto della colonna di destra
       const nodeSummary = document.getElementById('node-summary');
       nodeSummary.innerHTML = summaryHtml;
     }  
@@ -344,22 +344,22 @@
         const rect = nodeElement.getBoundingClientRect();
         const canvasRect = editor.precanvas.getBoundingClientRect();
 
-        // Calculate the absolute position of the node relative to the canvas
+        // Calcola la posizione assoluta del nodo rispetto al canvas
         const nodeCenterX = rect.left + rect.width / 2;
         const nodeCenterY = rect.top + rect.height / 2;
 
         const canvasCenterX = canvasRect.left + canvasRect.width / 2;
         const canvasCenterY = canvasRect.top + canvasRect.height / 2;
 
-        // Calculate the absolute coordinates of the canvas needed to center the node
+        // Calcola le coordinate assolute del canvas necessarie per centrare il nodo
         const offsetX = canvasCenterX - nodeCenterX;
         const offsetY = canvasCenterY - nodeCenterY;
 
-        // Set the absolute coordinates of the canvas
+        // Imposta le coordinate assolute del canvas
         editor.canvas_x = offsetX;
         editor.canvas_y = offsetY;
 
-        // Apply the transformation to the canvas
+        // Applica la trasformazione al canvas
         editor.precanvas.style.transform = `translate(${editor.canvas_x}px, ${editor.canvas_y}px) scale(${editor.zoom})`;
       }
     }
@@ -377,10 +377,10 @@
       if (nodeElement) {
         const titleBox = nodeElement.querySelector('.node-title');
 
-        // Create a text input to edit the name
+        // Crea un input di testo per modificare il nome
         const titleRect = titleBox.getBoundingClientRect();
 
-        // Create a text input to edit the name
+        // Crea un input di testo per modificare il nome
         const input = document.createElement('input');
         input.type = 'text';
         input.value = titleBox.textContent.trim();
@@ -393,14 +393,14 @@
 
         document.body.appendChild(input);
 
-        // Automatically select the text inside the input
+        // Seleziona automaticamente il testo all'interno dell'input
         input.select();
 
-        // When the user confirms (pressing Enter or clicking outside)
+        // Quando l'utente conferma (premendo Invio o cliccando fuori)
         input.addEventListener('blur', () => {
           const newName = input.value.trim();
           if (newName) {
-            // Update the node name
+            // Aggiorna il nome del nodo
             replaceTitle(nodeId, newName);
           }
           document.body.removeChild(input);
