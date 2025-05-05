@@ -35,9 +35,9 @@ export default class Drawflow {
 
     this.noderegister = {};
     this.render = render;
-    this.drawflow = { "drawflow": { "Home": { "data": {} }}};
+    this.drawflow = { "drawflow": { "All": { "data": {} }}};
     // Configurable options
-    this.module = 'Home';
+    this.module = 'All';
     this.editor_mode = 'edit';
     this.zoom = 1;
     this.zoom_max = 1.6;
@@ -594,7 +594,7 @@ export default class Drawflow {
   }
 
   zoom_enter(event, delta) {
-    if (event.ctrlKey) {
+    //if (event.ctrlKey) {
       event.preventDefault()
       if(event.deltaY > 0) {
         // Zoom Out
@@ -603,7 +603,7 @@ export default class Drawflow {
         // Zoom In
         this.zoom_in();
       }
-    }
+    //}
   }
   zoom_refresh(){
     this.dispatch('zoom', this.zoom);
@@ -1450,6 +1450,7 @@ export default class Drawflow {
     node.style.left = dataNode.pos_x + "px";
     parent.appendChild(node);
     this.precanvas.appendChild(parent);
+    this.dispatch('nodeImported', dataNode.id);    
   }
 
   addRerouteImport(dataNode) {
@@ -1887,7 +1888,7 @@ export default class Drawflow {
 
   removeModule(name) {
     if(this.module === name) {
-      this.changeModule('Home');
+      this.changeModule('All');
     }
     delete this.drawflow.drawflow[name];
     this.dispatch('moduleRemoved', name);
@@ -1900,7 +1901,7 @@ export default class Drawflow {
 
   clear () {
     this.precanvas.innerHTML = "";
-    this.drawflow = { "drawflow": { "Home": { "data": {} }}};
+    this.drawflow = { "drawflow": { "All": { "data": {} }}};
   }
   export () {
     const dataExport = JSON.parse(JSON.stringify(this.drawflow));
