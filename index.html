@@ -106,7 +106,7 @@
 
       // Events!
       editor.on('nodeImported', function(id) {
-        modifyNodeName(id);
+        //modifyNodeName(id);
       })
 
       editor.on('nodeCreated', function(id) {
@@ -120,7 +120,14 @@
 
       editor.on('nodeUnselected', function() {
         resetNodeTransparency();
-      });      
+        resetNodeSummary();
+      });    
+      
+      editor.on('nodeRemoved', function() {
+        resetNodeTransparency();
+        resetNodeSummary();
+      }); 
+
     });
 
     function allowDrop(ev) {
@@ -308,6 +315,10 @@
       allConnections.forEach(connection => connection.style.opacity = '1');
     }
 
+    function resetNodeSummary() {
+      const nodeSummary = document.getElementById('node-summary');
+      nodeSummary.innerHTML = ''; 
+    }
 
     let searchResults = [];
     function search() {

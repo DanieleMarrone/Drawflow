@@ -351,6 +351,10 @@ cursor: pointer;
   fill: white;
 }
 
+.drawflow-node.node-wcf .title-box {
+  background-color: limegreen;
+}
+
 .drawflow-node.node-service .title-box {
    background-color: lightgreen;
  }
